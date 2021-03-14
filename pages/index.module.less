@@ -1,0 +1,77 @@
+* {
+  font-family: "Fira Code", monospace;
+  margin: 0;
+}
+
+@supports (font-variation-settings: normal) {
+  * {
+    font-family: "Fira Code VF", monospace;
+  }
+}
+
+.Hero {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  color: white;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.Input {
+  position: absolute;
+  opacity: 0;
+  transform: scale(0);
+}
+@keyframes flash {
+  0% {
+    background-color: white;
+    color: black;
+  }
+  1% {
+    background-color: white;
+    color: black;
+  }
+  2% {
+    background-color: black;
+    color: white;
+  }
+
+  49% {
+    background-color: black;
+    color: white;
+  }
+  50% {
+    background-color: white;
+    color: black;
+  }
+  51% {
+    background-color: white;
+    color: black;
+  }
+
+  100% {
+    background-color: white;
+    color: black;
+  }
+}
+.Select {
+  position: absolute;
+  height: 20px;
+  background-color: white;
+  color: black;
+}
+.Cursor {
+  position: absolute;
+  width: 9.86px;
+  height: 20px;
+  animation-name: flash;
+  animation-iteration-count: infinite;
+  animation-duration: 1s;
+}
+.Messages > pre {
+  height: 20px;
+}

@@ -1,65 +1,92 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
-
+import Head from "next/head";
+import { useEffect, useState } from "react";
+import styles from "./index.module.less";
+import BackentWorker from "../backend/backend.worker";
 export default function Home() {
+  const [cols, setCols] = useState(50);
+  const [rows, setRows] = useState(10);
+  const [input, setInput] = useState("");
+  const [selectionStart, setSelectionStart] = useState(0);
+  const [selectionEnd, setSelectionEnd] = useState(0);
+  const [logs, setLogs] = useState([]);
+  function log(value) {
+    setLogs([
+      ...logs.slice(Math.max(0, logs.length - 100)),
+      <pre key={Math.random().toString(16).substr(2)}>{value}</pre>,
+    ]);
+  }
+  function handleInput(input) {
+    console.log(input);
+    log(input);
+  }
+  useEffect(() => {
+    const handler = () => {
+      setCols(Math.floor(window.innerWidth / 9.86));
+      setRows(Math.floor(window.innerHeight / 20));
+    };
+    handler();
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
   return (
-    <div className={styles.container}>
+    <>
       <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title>egg</title>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@4/distr/fira_code.css"
+        />
       </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
+      <label htmlFor="input" className={styles.Hero}>
+        <div className={styles.Messages}>{logs}</div>
+        <div className={styles.InputDisplay}>
+          <div
+            className={styles.Cursor}
+            style={{ left: 9.86 * selectionStart }}
           >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+            {input.length > selectionStart ? input.charAt(selectionStart) : ""}
+          </div>
+          {selectionStart != selectionEnd && (
+            <div
+              className={styles.Select}
+              style={{
+                left: 9.86 * selectionStart,
+                width: `${(selectionEnd - selectionStart) * 9.86}px`,
+              }}
+            >
+              <pre>{input.substring(selectionStart, selectionEnd)}</pre>
+            </div>
+          )}
+          <p>{input}</p>
+          <textarea
+            id="input"
+            cols={cols}
+            rows={rows}
+            className={styles.Input}
+            value={input}
+            onChange={(e) => {
+              setInput(e.target.value);
+              setSelectionStart(e.target.selectionStart);
+              setSelectionEnd(e.target.selectionEnd);
+            }}
+            onKeyDown={(e) => {
+              setSelectionStart(e.currentTarget.selectionStart);
+              setSelectionEnd(e.currentTarget.selectionEnd);
+              if (e.code === "Enter") {
+                handleInput(e.currentTarget.value.replace(/\n/g, "").trim());
+                setSelectionStart(0);
+                setSelectionEnd(0);
+                setInput("");
+                setTimeout(() => setInput(""));
+              }
+            }}
+            onKeyUp={(e) => {
+              setSelectionStart(e.currentTarget.selectionStart);
+              setSelectionEnd(e.currentTarget.selectionEnd);
+            }}
+          ></textarea>
         </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+      </label>
+    </>
+  );
 }
